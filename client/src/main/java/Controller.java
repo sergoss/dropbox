@@ -1,9 +1,8 @@
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 
 import java.io.DataInputStream;
@@ -13,7 +12,7 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class Controller implements Initializable {
+public class Controller implements Initializable{
     private Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
@@ -46,11 +45,14 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        setAuthorized(false);
+    }
+
+    public void connect() {
         try {
             socket = new Socket("localhost", 9000);
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
-            setAuthorized(false);
             Thread thread = new Thread(() -> {
                 try {
                     while (true) {
@@ -63,9 +65,14 @@ public class Controller implements Initializable {
                         mainTextArea.appendText(str);
                         mainTextArea.appendText("\n");
                     }
+                    while (true) {
+
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
+//                    showAlert("Disconnect from server!");
+                    setAuthorized(false);
                     try {
                         socket.close();
                     } catch (IOException e) {
@@ -91,12 +98,21 @@ public class Controller implements Initializable {
     }
 
     public void sendAuth(ActionEvent actionEvent) {
+        if (socket == null || socket.isClosed()) connect();
         try {
             out.writeUTF("/auth " + loginField.getText() + " " + passField.getText());
             loginField.clear();
             passField.clear();
         } catch (IOException e) {
             e.printStackTrace();
+            showAlert("Please check connection");
         }
+    }
+
+    public void showAlert(String msg) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK);
+            alert.showAndWait();
+        });
     }
 }

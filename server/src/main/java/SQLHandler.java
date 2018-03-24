@@ -6,7 +6,7 @@ public class SQLHandler {
     private static Driver driver;
     private static final String URL = "jdbc:mysql://localhost:3306/dropbox?autoReconnect=true&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC";
     private static final String USER = "root";
-    private static final String PASSWORD = "********";
+    private static final String PASSWORD = "ziga14882618";
 
     public static void connect() throws ClassNotFoundException, SQLException {
         driver = new com.mysql.cj.jdbc.Driver();
@@ -19,7 +19,7 @@ public class SQLHandler {
 
     public static String getUserByLoginAndPass(String login, String pass) {
         try {
-            ResultSet rs = statement.executeQuery(String.format("SELECT id FROM users WHERE login = '%s' AND pass = '%s';", login, pass));
+            ResultSet rs = statement.executeQuery(String.format("SELECT login FROM users WHERE login = '%s' AND pass = '%s';", login, pass));
             if (rs.next()) {
                 return rs.getString(1);
             }
